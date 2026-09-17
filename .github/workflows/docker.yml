@@ -1,4 +1,4 @@
-name: Build and push Docker images
+name: build and push images & deploy
 
 on:
   workflow_dispatch:
@@ -49,6 +49,9 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.previous-revision=${{ github.event.before }}
 
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOYER_TOKEN }}
