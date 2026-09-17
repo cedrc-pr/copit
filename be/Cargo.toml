@@ -1,0 +1,28 @@
+[package]
+name = "be"
+default-run = "be"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.103"
+dotenvy = "0.15.7"
+poem = { version = "3.1.12", features = ["websocket"] }
+sqlx = { version = "0.9.0", features = ["runtime-tokio", "postgres", "chrono", "uuid"] }
+tokio = { version = "1.52.3", features = ["full"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+serde = { version = "1.0.228", features = ["derive"] }
+chrono = { version = "0.4.44", features = ["serde"] }
+strum = { version = "0.28.0", features = ["derive", "strum_macros"] }
+thiserror = "2.0.18"
+serde_json = "1.0.150"
+validator = { version = "0.20.0", features = ["derive"] }
+ammonia = "4.1.3"
+uuid = { version = "1.23.4", features = ["serde", "v4"] }
+derive_more = { version = "2.1.1", features = ["deref", "deref_mut"] }
+regex = "1.13.0"
+redis = { version = "1.3.0", features = ["tokio-comp"] }
+futures-util = "0.3.32"
+rand = "0.10.2"
+hex = "0.4.3"

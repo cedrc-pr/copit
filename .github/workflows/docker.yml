@@ -1,0 +1,61 @@
+name: Build and push Docker images
+
+on:
+  workflow_dispatch:
+
+env:
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push FE
+        uses: docker/build-push-action@v6
+        with:
+          context: ./fe
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/copit-fe:latest
+            ${{ env.IMAGE_PREFIX }}/copit-fe:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.previous-revision=${{ github.event.before }}
+
+      - name: Build and push BE
+        uses: docker/build-push-action@v6
+        with:
+          context: ./be
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/copit-be:latest
+            ${{ env.IMAGE_PREFIX }}/copit-be:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.previous-revision=${{ github.event.before }}
+
+      - name: Deploy
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOYER_TOKEN }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $DEPLOY_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"service":"copit","args":["${{ github.sha }}"]}' \
+            --fail-with-body \
+            https://deployer.cedric-prin.dev/
