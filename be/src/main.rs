@@ -7,7 +7,7 @@ use crate::{
     adapters::{postgres::PostgresAdapter, redis::RedisAdapter},
     routes::routes,
     tools::ws_server_message::WsServerMessage,
-    utils::{cors, load_env, periodic_cleanup, setup_tracing},
+    utils::{load_env, periodic_cleanup, setup_tracing},
 };
 
 pub mod adapters;
@@ -46,7 +46,12 @@ async fn start_server() -> anyhow::Result<()> {
                 .data(postgres_adapter)
                 .data(redis_adapter)
                 .data(conns)
-                .with(cors()),
+                .with_if(
+                    std::env::var("ENV")
+                        .map_err(|e| anyhow::anyhow!("could not retreive ENV from .env: {e}"))?
+                        == "dev",
+                    poem::middleware::Cors::new().allow_origin("http://localhost:5173"),
+                ),
         )
         .await
     {

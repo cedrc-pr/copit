@@ -1,10 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use poem::{
-    http::{Method, header},
-    middleware::Cors,
-};
 use tracing_subscriber::{EnvFilter, fmt};
 
 use crate::adapters::postgres::PostgresAdapter;
@@ -59,21 +55,5 @@ pub fn validate_slug(slug: &str) -> Result<(), validator::ValidationError> {
         Ok(())
     } else {
         Err(validator::ValidationError::new("invalid slug"))
-    }
-}
-
-pub fn cors() -> Cors {
-    match std::env::var("ENV") {
-        Ok(env) => {
-            if env == "dev" {
-                Cors::new()
-                    .allow_origin("http://localhost:5173")
-                    .allow_methods(vec![Method::GET, Method::POST, Method::PUT, Method::DELETE])
-                    .allow_headers(vec![header::CONTENT_TYPE, header::AUTHORIZATION])
-            } else {
-                Cors::new()
-            }
-        }
-        Err(_) => Cors::new(),
     }
 }
